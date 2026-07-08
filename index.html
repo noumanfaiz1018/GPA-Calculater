@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPA &amp; CGPA Calculater — BS / MS</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="card">
+
+  <!-- ============================================================
+       LETTERHEAD (always visible, shared across every screen)
+       ============================================================ -->
+  <div class="letterhead">
+    <p class="eyebrow">Quaid-I-Azam University,Islamabad</p>
+    <h1 id="pageTitle">GPA &amp; CGPA Calculater</h1>
+    <p class="sub" id="pageSub">Select your program to get started.</p>
+    <!-- Breadcrumb showing the current navigation path, e.g. BS → Old Scheme → GPA -->
+    <div class="path-bar hidden" id="pathBar"></div>
+  </div>
+
+  <!-- ============================================================
+       SCREEN 1 — PROGRAM SELECTION (BS / MS)
+       ============================================================ -->
+  <section class="screen active" id="programScreen">
+    <div class="menu-grid">
+
+      <button class="menu-card" id="chooseBS" type="button">
+        <span class="menu-icon">BS</span>
+        <span class="menu-card-title">BS Program</span>
+        <span class="menu-card-text">Choose between the Old (range-based) or New (linear) grading scheme.</span>
+      </button>
+
+      <button class="menu-card" id="chooseMS" type="button">
+        <span class="menu-icon">MS</span>
+        <span class="menu-card-title">MS Program</span>
+        <span class="menu-card-text">Uses the fixed grade-based system: Grades A, B, C, and F.</span>
+      </button>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SCREEN 2 — SCHEME SELECTION (BS ONLY)
+       ============================================================ -->
+  <section class="screen" id="schemeScreen">
+    <button class="back-btn" data-back="scheme" type="button">&larr; Back</button>
+
+    <div class="menu-grid">
+
+      <button class="menu-card" id="chooseOld" type="button">
+        <span class="menu-icon">OLD</span>
+        <span class="menu-card-title">Old Scheme</span>
+        <span class="menu-card-text">Range-based: fixed GPA bands, e.g. 80+ &rarr; 4.00, 76&ndash;79 &rarr; 3.80, and so on.</span>
+      </button>
+
+      <button class="menu-card" id="chooseNew" type="button">
+        <span class="menu-icon">NEW</span>
+        <span class="menu-card-title">New Scheme</span>
+        <span class="menu-card-text">Linear: GPA = 1 + (marks &minus; 50) &times; 0.1, capped at 4.00 from 80 marks.</span>
+      </button>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SCREEN 3 — MODE SELECTION (GPA / CGPA) — BOTH BS & MS
+       ============================================================ -->
+  <section class="screen" id="modeScreen">
+    <button class="back-btn" data-back="mode" type="button">&larr; Back</button>
+
+    <div class="menu-grid">
+
+      <button class="menu-card" id="chooseGPA" type="button">
+        <span class="menu-icon">GPA</span>
+        <span class="menu-card-title">Calculate GPA</span>
+        <span class="menu-card-text">Enter subject marks and credit hours to compute a semester GPA.</span>
+      </button>
+
+      <button class="menu-card" id="chooseCGPA" type="button">
+        <span class="menu-icon">CGPA</span>
+        <span class="menu-card-title">Calculate CGPA</span>
+        <span class="menu-card-text">Combine semester GPAs and credit hours into one cumulative GPA.</span>
+      </button>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SCREEN 4 — GPA CALCULATOR (marks + credit hours)
+       ============================================================ -->
+  <section class="screen" id="gpaScreen">
+    <button class="back-btn" data-back="gpa" type="button">&larr; Back</button>
+
+    <div class="ledger">
+      <div class="ledger-head gpa-grid">
+        <span>#</span>
+        <span>Subject</span>
+        <span>Marks</span>
+        <span>Credit Hrs</span>
+        <span></span>
+      </div>
+      <div class="rows" id="gpaRows"><!-- rows injected by JS --></div>
+
+      <div class="add-row-wrap">
+        <button class="add-btn" id="addSubjectBtn" type="button">+ Add Subject</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="calcGPABtn" type="button">Calculate GPA</button>
+      <button class="btn btn-ghost" id="resetGPABtn" type="button">Reset</button>
+    </div>
+
+    <div class="result-wrap">
+      <div class="seal" id="gpaSeal">
+        <div class="seal-value" id="gpaSealValue">--</div>
+        <div class="seal-label">Final GPA</div>
+      </div>
+      <div class="result-details">
+        <h2 id="gpaResultHeading">Awaiting calculation</h2>
+        <p id="gpaResultText">Add subjects with marks and credit hours, then press <b>Calculate GPA</b>.</p>
+      </div>
+    </div>
+
+    <footer class="note" id="gpaNote"></footer>
+  </section>
+
+  <!-- ============================================================
+       SCREEN 5 — CGPA CALCULATOR (GPA + credit hours)
+       ============================================================ -->
+  <section class="screen" id="cgpaScreen">
+    <button class="back-btn" data-back="cgpa" type="button">&larr; Back</button>
+
+    <div class="ledger">
+      <div class="ledger-head cgpa-grid">
+        <span>#</span>
+        <span>Semester</span>
+        <span>GPA</span>
+        <span>Credit Hrs</span>
+        <span></span>
+      </div>
+      <div class="rows" id="cgpaRows"><!-- rows injected by JS --></div>
+
+      <div class="add-row-wrap">
+        <button class="add-btn" id="addSemesterBtn" type="button">+ Add Semester</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="calcCGPABtn" type="button">Calculate CGPA</button>
+      <button class="btn btn-ghost" id="resetCGPABtn" type="button">Reset</button>
+    </div>
+
+    <div class="result-wrap">
+      <div class="seal" id="cgpaSeal">
+        <div class="seal-value" id="cgpaSealValue">--</div>
+        <div class="seal-label">Final CGPA</div>
+      </div>
+      <div class="result-details">
+        <h2 id="cgpaResultHeading">Awaiting calculation</h2>
+        <p id="cgpaResultText">Add each semester's GPA and credit hours, then press <b>Calculate CGPA</b>.</p>
+      </div>
+    </div>
+
+    <footer class="note">
+      <b>Formula:</b> CGPA = (&Sigma; GPA &times; Credit Hours) &divide; (&Sigma; Credit Hours), rounded to 2 decimal places.
+    </footer>
+  </section>
+
+  <!-- ============================================================
+       SITE CREDIT (always visible, shared across every screen)
+       ============================================================ -->
+  <p class="site-credit">&copy; 2026 GPA Calculator | Developed by <span class="name">Nouman Faiz</span></p>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

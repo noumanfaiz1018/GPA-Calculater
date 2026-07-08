@@ -1,0 +1,462 @@
+/* ================================================================
+   DESIGN TOKENS
+   Theme: "Registrar's Calculater" — a dark ink-navy page holding a
+   cream transcript card, gold seal accents, ledger-style rows.
+   ================================================================ */
+:root{
+  --ink-900: #0b1220;      /* page background */
+  --paper: #f6f1e4;        /* transcript paper */
+  --paper-line: #e4dcc7;   /* faint ledger rule */
+  --navy-text: #1c2434;    /* primary text on paper */
+  --navy-soft: #5b6376;    /* secondary text */
+  --gold: #b8902f;         /* seal / accent gold */
+  --gold-deep: #8f6f22;
+  --pass-green: #4b7a63;   /* muted academic green for pass */
+  --fail-red: #9c4438;     /* muted brick red for fail */
+  --grade-blue: #3f5a78;   /* used for grade B badge */
+  --grade-teal: #3f7a72;   /* used for grade C badge */
+  --radius-card: 18px;
+  --radius-row: 10px;
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 20% 10%, #131d33 0%, transparent 45%),
+    radial-gradient(circle at 85% 90%, #101a2d 0%, transparent 50%),
+    var(--ink-900);
+  font-family:'Inter', sans-serif;
+  color: var(--navy-text);
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding: 48px 16px;
+}
+
+/* ---------- Transcript card (shared shell for every screen) ---------- */
+.card{
+  width:100%;
+  max-width: 740px;
+  background: var(--paper);
+  border-radius: var(--radius-card);
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03);
+  overflow:hidden;
+  animation: riseIn 0.6s cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes riseIn{
+  from{ opacity:0; transform: translateY(18px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
+/* Letterhead */
+.letterhead{
+  padding: 30px 36px 22px;
+  border-bottom: 1px dashed var(--paper-line);
+}
+.letterhead .eyebrow{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin: 0 0 6px;
+}
+.letterhead h1{
+  font-family:'Fraunces', serif;
+  font-weight: 600;
+  font-size: clamp(22px, 4vw, 30px);
+  margin: 0 0 6px;
+  color: var(--navy-text);
+  letter-spacing: 0.2px;
+  transition: opacity 0.2s ease;
+}
+.letterhead .sub{
+  margin:0;
+  font-size: 13.5px;
+  color: var(--navy-soft);
+  line-height:1.5;
+  transition: opacity 0.2s ease;
+}
+
+/* Breadcrumb path bar, e.g. "BS → Old Scheme → GPA" */
+.path-bar{
+  margin-top: 14px;
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  font-family:'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.5px;
+  color: var(--gold-deep);
+  background: rgba(184,144,47,0.10);
+  border: 1px solid rgba(184,144,47,0.3);
+  border-radius: 20px;
+  padding: 6px 14px;
+}
+.path-bar.hidden{ display:none; }
+
+/* ================================================================
+   SCREEN SWITCHING — smooth cross-fade + slide between screens
+   ================================================================ */
+.screen{
+  display:none;
+  opacity:0;
+  transform: translateY(10px);
+}
+.screen.active{
+  display:block;
+  animation: screenIn 0.4s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes screenIn{
+  from{ opacity:0; transform: translateY(10px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
+/* ---------- Selection screens (program / scheme / mode) ---------- */
+.menu-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  padding: 32px 36px 36px;
+}
+
+.menu-card{
+  background: #fffdf8;
+  border: 1px solid var(--paper-line);
+  border-radius: 14px;
+  padding: 26px 20px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap: 10px;
+  text-align:left;
+  cursor:pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.menu-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 14px 26px -14px rgba(28,36,52,0.35);
+  border-color: var(--gold);
+}
+.menu-card:active{ transform: translateY(-1px); }
+
+/* Highlight state applied briefly right after a card is chosen,
+   just before the screen transitions away */
+.menu-card.selected{
+  border-color: var(--gold-deep);
+  background: rgba(184,144,47,0.12);
+  box-shadow: 0 0 0 3px rgba(184,144,47,0.18);
+  transform: translateY(-2px) scale(0.99);
+}
+
+.menu-icon{
+  font-family:'JetBrains Mono', monospace;
+  font-weight:700;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: var(--gold-deep);
+  background: rgba(184,144,47,0.12);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+.menu-card-title{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size: 19px;
+  color: var(--navy-text);
+}
+.menu-card-text{
+  font-size: 13px;
+  color: var(--navy-soft);
+  line-height:1.5;
+}
+
+/* ---------- Back button ---------- */
+.back-btn{
+  margin: 22px 36px 0;
+  background:none;
+  border:none;
+  color: var(--navy-soft);
+  font-family:'Inter', sans-serif;
+  font-size: 13px;
+  font-weight:600;
+  cursor:pointer;
+  padding: 6px 0;
+  transition: color 0.15s ease;
+}
+.back-btn:hover{ color: var(--gold-deep); }
+
+/* ---------- Ledger (subject / semester rows) ---------- */
+.ledger{ padding: 18px 36px 8px; }
+
+.ledger-head{
+  display:grid;
+  gap: 10px;
+  font-family:'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--navy-soft);
+  padding: 0 6px 10px;
+  border-bottom: 1px solid var(--paper-line);
+}
+
+/* Column layouts: both GPA and CGPA screens use 5 cols */
+.gpa-grid{ grid-template-columns: 26px 1fr 84px 84px 30px; }
+.cgpa-grid{ grid-template-columns: 26px 1fr 84px 96px 30px; }
+
+.rows{ display:flex; flex-direction:column; }
+
+.row{
+  display:grid;
+  gap: 10px;
+  align-items:center;
+  padding: 12px 6px;
+  border-bottom: 1px solid var(--paper-line);
+  animation: rowIn 0.35s ease both;
+}
+.row.gpa-grid{ grid-template-columns: 26px 1fr 84px 84px 30px; }
+.row.cgpa-grid{ grid-template-columns: 26px 1fr 84px 96px 30px; }
+
+@keyframes rowIn{
+  from{ opacity:0; transform: translateX(-8px); }
+  to{ opacity:1; transform: translateX(0); }
+}
+.row.removing{ animation: rowOut 0.25s ease forwards; }
+@keyframes rowOut{
+  to{ opacity:0; transform: translateX(12px) scale(0.98); height:0; padding:0; margin:0; }
+}
+
+.row .num{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: var(--navy-soft);
+}
+
+.row input[type="text"]{
+  border:none;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  font-family:'Inter', sans-serif;
+  font-size: 14.5px;
+  color: var(--navy-text);
+  padding: 4px 2px;
+  width:100%;
+  transition: border-color 0.2s ease;
+}
+.row input[type="text"]:focus{
+  outline:none;
+  border-bottom: 1px solid var(--gold);
+}
+
+.row input[type="number"]{
+  border: 1px solid var(--paper-line);
+  background: #fffdf8;
+  border-radius: 8px;
+  font-family:'JetBrains Mono', monospace;
+  font-size: 14px;
+  padding: 6px 8px;
+  width:100%;
+  color: var(--navy-text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.row input[type="number"]:focus{
+  outline:none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,144,47,0.15);
+}
+
+.row input[type="number"].invalid{
+  border-color: var(--fail-red);
+  box-shadow: 0 0 0 3px rgba(156,68,56,0.12);
+}
+
+.row .remove-btn{
+  border:none;
+  background:transparent;
+  color: var(--navy-soft);
+  font-size: 17px;
+  cursor:pointer;
+  line-height:1;
+  padding: 4px;
+  border-radius:6px;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.row .remove-btn:hover{
+  color: var(--fail-red);
+  background: rgba(156,68,56,0.08);
+  transform: rotate(90deg);
+}
+
+/* Add row button */
+.add-row-wrap{ padding: 14px 6px 6px; }
+.add-btn{
+  background:none;
+  border: 1px dashed var(--paper-line);
+  color: var(--gold-deep);
+  font-family:'Inter', sans-serif;
+  font-weight:600;
+  font-size: 13.5px;
+  padding: 10px 14px;
+  border-radius: var(--radius-row);
+  cursor:pointer;
+  width:100%;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.add-btn:hover{
+  border-color: var(--gold);
+  background: rgba(184,144,47,0.07);
+}
+
+/* ---------- Action bar ---------- */
+.actions{
+  display:flex;
+  gap: 12px;
+  padding: 22px 36px 10px;
+}
+.btn{
+  flex:1;
+  padding: 13px 18px;
+  border-radius: 10px;
+  font-family:'Inter', sans-serif;
+  font-weight:600;
+  font-size: 14.5px;
+  cursor:pointer;
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.btn:active{ transform: translateY(1px); }
+
+.btn-primary{
+  background: linear-gradient(180deg, #2a3550, #1c2434);
+  color: var(--paper);
+  box-shadow: 0 8px 20px -8px rgba(28,36,52,0.6);
+}
+.btn-primary:hover{ box-shadow: 0 10px 24px -8px rgba(28,36,52,0.75); }
+
+.btn-ghost{
+  background: transparent;
+  color: var(--navy-soft);
+  border: 1px solid var(--paper-line);
+}
+.btn-ghost:hover{ border-color: var(--navy-soft); color: var(--navy-text); }
+
+/* ---------- Result / Seal ---------- */
+.result-wrap{
+  display:flex;
+  align-items:center;
+  gap: 26px;
+  padding: 10px 36px 32px;
+}
+
+.seal{
+  flex-shrink:0;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 2px dashed var(--gold);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  position:relative;
+  transition: transform 0.4s cubic-bezier(.2,.8,.2,1), border-color 0.3s ease;
+}
+.seal::before{
+  content:'';
+  position:absolute;
+  inset:8px;
+  border-radius:50%;
+  border: 1px solid var(--paper-line);
+}
+.seal .seal-value{
+  font-family:'Fraunces', serif;
+  font-weight:700;
+  font-size: 28px;
+  color: var(--navy-text);
+  line-height:1;
+}
+.seal .seal-label{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 1.5px;
+  text-transform:uppercase;
+  color: var(--navy-soft);
+  margin-top:4px;
+}
+.seal.stamped{
+  animation: stamp 0.5s cubic-bezier(.34,1.56,.64,1) both;
+  border-color: var(--gold-deep);
+}
+@keyframes stamp{
+  0%{ transform: scale(1.35) rotate(-8deg); opacity:0; }
+  60%{ transform: scale(0.95) rotate(2deg); opacity:1; }
+  100%{ transform: scale(1) rotate(0); }
+}
+.seal.fail-seal{ border-color: var(--fail-red); }
+.seal.fail-seal .seal-value{ color: var(--fail-red); }
+
+.result-details{ flex:1; }
+.result-details h2{
+  font-family:'Fraunces', serif;
+  font-size: 17px;
+  margin: 0 0 6px;
+  color: var(--navy-text);
+}
+.result-details p{
+  margin:0;
+  font-size: 13px;
+  color: var(--navy-soft);
+  line-height:1.6;
+}
+
+footer.note{
+  padding: 16px 36px 26px;
+  border-top: 1px dashed var(--paper-line);
+  font-size: 11.5px;
+  color: var(--navy-soft);
+  line-height:1.6;
+}
+footer.note b{ color: var(--gold-deep); }
+footer.note:empty{ display:none; }
+
+/* ---------- Site credit (persistent, shown on every screen) ---------- */
+.site-credit{
+  margin:0;
+  padding: 14px 36px 22px;
+  text-align:center;
+  font-family:'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.4px;
+  color: var(--navy-soft);
+  border-top: 1px dashed var(--paper-line);
+}
+.site-credit .name{
+  color: var(--gold-deep);
+  font-weight:700;
+}
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 560px){
+  .letterhead{ padding: 24px 20px 18px; }
+  .menu-grid{ grid-template-columns: 1fr; padding: 24px 20px 28px; }
+  .back-btn{ margin: 18px 20px 0; }
+  .ledger{ padding: 14px 20px 4px; }
+  .actions{ padding: 18px 20px 6px; flex-direction:column; }
+  .result-wrap{ padding: 8px 20px 26px; flex-direction:column; text-align:center; }
+  footer.note{ padding: 14px 20px 22px; }
+  .site-credit{ padding: 12px 20px 18px; }
+
+  .gpa-grid{ grid-template-columns: 16px 1fr 54px 54px 20px; }
+  .row.gpa-grid{ grid-template-columns: 16px 1fr 54px 54px 20px; gap:5px; }
+
+  .cgpa-grid{ grid-template-columns: 16px 1fr 60px 68px 20px; gap:5px; }
+  .row.cgpa-grid{ grid-template-columns: 16px 1fr 60px 68px 20px; gap:5px; }
+
+}
